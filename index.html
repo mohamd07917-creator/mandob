@@ -12,12 +12,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 
-<!-- Firebase SDK with your config (مضاف فقط، بدون أي تغيير في التصميم) -->
+<!-- Firebase SDK with your config -->
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
   import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, onSnapshot, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
   
-  // تم إضافة config الخاص بك هنا - فقط هذا التعديل
+  // Firebase configuration (مدمج مباشرة)
   const firebaseConfig = {
     apiKey: "AIzaSyBt09D0jlAPKIh2W1_qlDvYGG_QSHRo4wo",
     authDomain: "mandob-e86e3.firebaseapp.com",
@@ -26,13 +26,14 @@
     messagingSenderId: "120254027919",
     appId: "1:120254027919:web:9aedbdba801885e5a978fa"
   };
-  
+
+  // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
   
   window._fbModules = { initializeApp, getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, onSnapshot, query, orderBy };
   window._fbDb = db;
-  window._fbConnected = true;  // تعيين الاتصال تلقائياً
+  window._fbConnected = true;
 </script>
 
 <style>
@@ -84,14 +85,19 @@ body::after{
   background:linear-gradient(135deg,rgba(21,14,42,0.98),rgba(15,10,30,0.98));
   border-bottom:1px solid var(--border);
   padding:12px 16px 10px;
-  display:flex;align-items:center;justify-content:space-between;
-  position:relative;z-index:60;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  position:relative;
+  z-index:60;
   backdrop-filter:blur(20px);
   flex-shrink:0;
 }
 
 .app-brand{
-  display:flex;align-items:center;gap:10px;
+  display:flex;
+  align-items:center;
+  gap:10px;
 }
 
 .app-logo{
@@ -411,7 +417,7 @@ body::after{
 .sa-close{background:rgba(167,139,250,.15);color:var(--muted);border:1px solid var(--border);flex:0;padding:13px 18px;}
 .sa-btn:active{transform:scale(.97);}
 
-/* ── ADD SHEET (صور متعددة) ── */
+/* ── ADD SHEET ── */
 .form-grp{margin-bottom:12px;}
 .form-lbl{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:5px;display:flex;align-items:center;gap:5px;}
 .form-in{
@@ -449,6 +455,8 @@ body::after{
 }
 .img-drop:hover{border-color:var(--violet);background:rgba(167,139,250,.05);}
 .img-drop input{display:none;}
+.img-drop-icon{font-size:28px;margin-bottom:6px;}
+.img-drop-txt{font-size:12px;color:var(--muted);}
 
 .submit-btn{
   width:100%;padding:15px;
@@ -502,14 +510,31 @@ body::after{
 }
 .commission-big-lbl{font-size:12px;color:var(--muted);margin-top:4px;}
 
-/* Firebase status display (بسيط) */
-.fb-status{
-  display:flex;align-items:center;gap:6px;
-  font-size:12px;padding:8px 12px;border-radius:9px;
-  margin-bottom:10px;
+/* Firebase status indicator - نقطة خضراء/حمراء */
+.fb-status-indicator{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-size:11px;
+  font-weight:600;
+  padding:4px 10px;
+  border-radius:50px;
+  margin-right:8px;
 }
-.fb-status.connected{background:rgba(52,211,153,.1);color:var(--mint);border:1px solid rgba(52,211,153,.2);}
-.fb-status.disconnected{background:rgba(244,114,182,.1);color:var(--rose);border:1px solid rgba(244,114,182,.2);}
+.fb-status-dot{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  display:inline-block;
+  animation:pulse 1.5s infinite;
+}
+@keyframes pulse{
+  0%{opacity:0.5;transform:scale(0.8);}
+  100%{opacity:1;transform:scale(1.2);}
+}
+.fb-status-dot.green{background:#34d399;box-shadow:0 0 6px #34d399;}
+.fb-status-dot.red{background:#f472b6;box-shadow:0 0 6px #f472b6;}
+.fb-status-text{color:var(--muted);}
 
 .btn-outline-danger{
   width:100%;padding:12px;border-radius:var(--r2);
@@ -529,6 +554,7 @@ body::after{
   cursor:pointer;transition:all .2s;margin-top:8px;
   display:flex;align-items:center;justify-content:center;gap:7px;
 }
+.btn-outline-primary:active{background:rgba(167,139,250,.16);}
 
 /* ── FAB ── */
 .fab{
@@ -627,8 +653,14 @@ body::after{
       <div class="app-tagline">صُنع بـ❤️ لمندوبتي</div>
     </div>
   </div>
-  <div class="commission-pill" onclick="goSettings()">
-    💰 <span id="topbar-comm">0</span> د.ع
+  <div style="display:flex;align-items:center;">
+    <div class="commission-pill" onclick="goSettings()">
+      💰 <span id="topbar-comm">0</span> د.ع
+    </div>
+    <div id="fbStatusIcon" class="fb-status-indicator" style="margin-right:8px;">
+      <span id="fbDot" class="fb-status-dot red"></span>
+      <span id="fbText" class="fb-status-text" style="font-size:10px;">غير متصل</span>
+    </div>
   </div>
 </div>
 
@@ -700,7 +732,6 @@ body::after{
     <div style="height:14px;"></div>
     <div class="page-hdr"><div class="page-hdr-title">⚙️ الإعدادات</div></div>
 
-    <!-- Commission -->
     <div class="set-card">
       <div class="set-card-title">💰 إجمالي العمولات المستلمة</div>
       <div class="commission-big-wrap">
@@ -710,13 +741,14 @@ body::after{
       <button class="btn-outline-danger" onclick="confirmResetComm()">🗑️ حذف العمولات وإعادة الصفر</button>
     </div>
 
-    <!-- Firebase status (معلومات فقط) -->
     <div class="set-card">
       <div class="set-card-title">🔥 ربط Firebase</div>
-      <div id="fb-status-bar" class="fb-status connected">✅ متصل تلقائياً - مزامنة حية</div>
+      <div id="settingsFbStatus" style="display:flex;align-items:center;gap:8px;padding:8px;background:rgba(255,255,255,0.05);border-radius:12px;margin-bottom:10px;">
+        <span id="settingsDot" class="fb-status-dot red"></span>
+        <span id="settingsText" style="font-size:12px;">جاري الاتصال...</span>
+      </div>
     </div>
 
-    <!-- PWA -->
     <div class="set-card">
       <div class="set-card-title">📲 تثبيت التطبيق</div>
       <p style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.6;">ثبّتي التطبيق على شاشتك الرئيسية للوصول بدون انترنت</p>
@@ -724,7 +756,6 @@ body::after{
       <p id="ios-hint" style="display:none;font-size:11px;color:var(--mint);text-align:center;">iPhone: اضغطي 🔗 ← أضف إلى الشاشة الرئيسية</p>
     </div>
 
-    <!-- Danger -->
     <div class="set-card">
       <div class="set-card-title">⚠️ منطقة الخطر</div>
       <button class="btn-outline-danger" onclick="confirmDeleteAll()">⚠️ حذف كل البيانات نهائياً</button>
@@ -757,7 +788,7 @@ body::after{
 <!-- FAB -->
 <button class="fab" onclick="openAdd()">+</button>
 
-<!-- ADD HOUSE SHEET (مع صور متعددة) -->
+<!-- ADD HOUSE SHEET -->
 <div class="sheet-overlay" id="add-sheet" onclick="handleSheetClick(event,'add-sheet')">
   <div class="sheet">
     <div class="sheet-handle"></div>
@@ -814,16 +845,19 @@ body::after{
         </div>
         <div id="multi-img-previews" class="img-multi-area"></div>
       </div>
+
       <button class="submit-btn" onclick="addHouse()">✦ حفظ البيت</button>
     </div>
   </div>
 </div>
 
-<!-- DETAIL SHEET (مع معرض صور) -->
+<!-- DETAIL SHEET -->
 <div class="sheet-overlay" id="detail-sheet" onclick="handleSheetClick(event,'detail-sheet')">
   <div class="sheet">
     <div class="sheet-handle"></div>
-    <div id="detail-img-wrap"></div>
+    <div id="detail-img-wrap">
+      <div class="sheet-no-img">🏠</div>
+    </div>
     <div class="sheet-content">
       <div class="h-status av" id="detail-status" style="display:inline-block;margin-bottom:10px;">● متاح</div>
       <div class="sheet-title" id="detail-title">—</div>
@@ -834,7 +868,7 @@ body::after{
   </div>
 </div>
 
-<!-- RENT DIALOG (اسم المستأجر) -->
+<!-- RENT DIALOG -->
 <div class="sheet-overlay" id="rent-dialog" onclick="handleSheetClick(event,'rent-dialog')">
   <div class="sheet" style="max-height:70vh;">
     <div class="sheet-handle"></div>
@@ -874,29 +908,12 @@ body::after{
 <div class="notify" id="notify"></div>
 
 <script>
-// هذا الكود مطابق تماماً للنسخة الأصلية ولكن مع تعديل بسيط لاستخدام Firebase التلقائي
-// مع الحفاظ على جميع الميزات (صور متعددة، تأجير لأطراف متعددة) ونفس التصميم
-
-let houses = [];
-let rentHistory = [];
-let totalComm = 0;
-let curFilter = 'all';
-let curSearch = '';
-let curRating = 3;
-let currentDetailId = null;
-let isFirebaseOn = true;  // تم ضبطه تلقائياً
-let fbUnsubscribe = null;
-let selectedImageFiles = [];
-let currentRentHouse = null;
-let deferredInstall = null;
-let confirmCb = null;
-let flirtTimer = null, notifyTimer = null;
-
-// FLIRTY MESSAGES
+// ======================= FLIRTY MESSAGES =======================
 const FLIRTS = [
   ["🌹","والله ايدچ خفيفة يا قمر!"],["💫","برافو عليچ يا حلوة!"],["✨","ما يجي مثلچ بالشغل!"],["🌺","الله يبارك بيچ يا عسل!"],["💖","شطورة وما بيها كلام!"],["🌙","يا نور عيوني، أحسنتِ!"],["⭐","أذكى مندوبة بالعراق!"],["🌸","واحدة واحدة يا جميلة!"],["💎","كلشي صار بأيديچ الطيبة!"],["🦋","يمعود شلون شاطرة!"],["🌷","الله يخليچ دائماً متألقة!"],["🍯","أشطر وأحلى مندوبة!"],["💫","يا وردة تفتحت بالربيع!"],["🌟","أحسنتِ وزيادة يا قمر!"],["🎀","من يشتغل مثلچ؟ ما أحد!"]
 ];
-let lastFlirt = -1;
+let lastFlirt = -1, flirtTimer = null, notifyTimer = null;
+
 function showFlirt() {
   let idx; do { idx = Math.floor(Math.random() * FLIRTS.length); } while (idx === lastFlirt);
   lastFlirt = idx;
@@ -907,6 +924,7 @@ function showFlirt() {
   clearTimeout(flirtTimer);
   flirtTimer = setTimeout(() => el.classList.remove('show'), 2000);
 }
+
 document.addEventListener('touchstart', e => {
   const t = e.target;
   if (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA') return;
@@ -921,58 +939,65 @@ function showNotify(msg) {
   notifyTimer = setTimeout(() => el.classList.remove('show'), 2800);
 }
 
-// حفظ البيانات محلياً
-function saveLocal() {
+// ======================= DATA =======================
+let houses = JSON.parse(localStorage.getItem('m_houses') || '[]');
+let rentHistory = JSON.parse(localStorage.getItem('m_history') || '[]');
+let totalComm = parseInt(localStorage.getItem('m_comm') || '0');
+let curFilter = 'all', curSearch = '', curRating = 3;
+let currentDetailId = null;
+let selectedImageFiles = [];
+let currentRentHouse = null;
+let deferredInstall = null;
+let confirmCb = null;
+let fbUnsubscribe = null;
+let isFirebaseConnected = false;
+
+// ترحيل الصور القديمة
+houses = houses.map(h => {
+  if (h.image && !h.imageUrls) { h.imageUrls = [h.image]; delete h.image; }
+  if (!h.imageUrls) h.imageUrls = [];
+  return h;
+});
+
+function save() {
   localStorage.setItem('m_houses', JSON.stringify(houses));
   localStorage.setItem('m_history', JSON.stringify(rentHistory));
   localStorage.setItem('m_comm', totalComm);
 }
 
-// تحديث العمولات المعروضة
 function refreshCommDisplay() {
   document.getElementById('topbar-comm').innerText = totalComm.toLocaleString();
   if(document.getElementById('comm-big')) document.getElementById('comm-big').innerText = totalComm.toLocaleString();
 }
 
-// إعادة حساب العمولة الإجمالية من سجل التأجيرات
 function recalcTotalComm() {
   totalComm = rentHistory.reduce((sum, r) => sum + (r.commission || 0), 0);
   refreshCommDisplay();
-  return totalComm;
 }
 
-// تحميل البيانات من localStorage أولاً ثم من Firebase
-function loadLocalData() {
-  const storedHouses = localStorage.getItem('m_houses');
-  if(storedHouses) houses = JSON.parse(storedHouses);
-  const storedHistory = localStorage.getItem('m_history');
-  if(storedHistory) rentHistory = JSON.parse(storedHistory);
-  const storedComm = localStorage.getItem('m_comm');
-  if(storedComm) totalComm = parseInt(storedComm) || 0;
-  // ترحيل الصور القديمة إن وجدت
-  houses = houses.map(h => {
-    if(h.image && !h.imageUrls) { h.imageUrls = [h.image]; delete h.image; }
-    if(!h.imageUrls) h.imageUrls = [];
-    return h;
-  });
-  recalcTotalComm();
-  renderHouses();
-  renderHistory();
-  updateStats();
+// ======================= FIREBASE STATUS FUNCTIONS =======================
+function updateFbStatusUI(connected) {
+  isFirebaseConnected = connected;
+  const dotColor = connected ? 'green' : 'red';
+  const statusText = connected ? 'متصل' : 'غير متصل';
+  // topbar indicator
+  const topDot = document.getElementById('fbDot');
+  const topText = document.getElementById('fbText');
+  if(topDot) { topDot.className = `fb-status-dot ${dotColor}`; }
+  if(topText) { topText.innerText = statusText; }
+  // settings indicator
+  const settingsDot = document.getElementById('settingsDot');
+  const settingsText = document.getElementById('settingsText');
+  if(settingsDot) { settingsDot.className = `fb-status-dot ${dotColor}`; }
+  if(settingsText) { settingsText.innerText = connected ? '✅ متصل بـ Firebase - مزامنة حية' : '❌ غير متصل بـ Firebase (استخدام التخزين المحلي)'; }
 }
 
-// دالة حفظ (تعمل محلياً عندما لا يكون Firebase، لكننا هنا نستخدم Firebase بشكل أساسي)
-function save() {
-  if (!isFirebaseOn) saveLocal();
-  else {
-    // مع Firebase يتم الحفظ عبر الإضافة المباشرة، لكن نحتفظ بنسخة محلية للمزامنة
-    saveLocal();
-  }
-}
-
-// بدء الاستماع إلى Firebase
+// ======================= FIREBASE LISTENER =======================
 function startFirebaseListener() {
-  if (!window._fbDb) return;
+  if (!window._fbDb) {
+    updateFbStatusUI(false);
+    return;
+  }
   const { collection, onSnapshot, query, orderBy } = window._fbModules;
   const q = query(collection(window._fbDb, 'houses'), orderBy('addedAt', 'desc'));
   fbUnsubscribe = onSnapshot(q, (snap) => {
@@ -985,19 +1010,23 @@ function startFirebaseListener() {
         imageUrls: data.imageUrls || []
       };
     });
-    // بعد جلب البيوت من Firebase، نقوم بتحميل سجل التأجيرات من localStorage (يمكن تحسينه لاحقاً)
+    // تحميل سجل التأجيرات من localStorage (يمكن تطويره لاحقاً لحفظه في Firebase)
     const storedHistory = localStorage.getItem('m_history');
     if(storedHistory) rentHistory = JSON.parse(storedHistory);
-    else rentHistory = [];
     recalcTotalComm();
     renderHouses();
     renderHistory();
     updateStats();
-    saveLocal(); // تحديث المحلي
-  }, err => console.warn(err));
+    save();
+    updateFbStatusUI(true);
+    showNotify('🔥 تم الاتصال بـ Firebase');
+  }, (err) => {
+    console.warn('Firebase listener error:', err);
+    updateFbStatusUI(false);
+  });
 }
 
-// دوال العرض والفلترة
+// ======================= FUNCTIONS =======================
 function getFiltered() {
   let list = [...houses];
   if (curFilter === 'available') list = list.filter(h => !h.rented);
@@ -1041,7 +1070,7 @@ function renderHouses() {
   `).join('');
 }
 
-function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
 
 function updateStats() {
   document.getElementById('st-total').innerText = houses.length;
@@ -1052,8 +1081,6 @@ function updateStats() {
 function setFilter(f, el) { curFilter = f; document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active')); el.classList.add('active'); renderHouses(); }
 function doSearch(q) { curSearch = q; renderHouses(); }
 function callOwner(phone) { if(phone) window.open('tel:' + phone); showFlirt(); }
-
-// وظائف الصفحات والأوراق
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -1068,7 +1095,6 @@ function closeSheet(id) { document.getElementById(id).classList.remove('open'); 
 function handleSheetClick(e, id) { if (e.target === document.getElementById(id)) closeSheet(id); }
 function openAdd() { clearForm(); openSheet('add-sheet'); }
 
-// نموذج الإضافة
 function clearForm() {
   ['f-addr','f-area','f-phone','f-contents','f-price','f-comm'].forEach(i => document.getElementById(i).value = '');
   document.getElementById('f-multi-imgs').value = '';
@@ -1125,15 +1151,14 @@ async function addHouse() {
     rented: false,
     addedAt: new Date().toISOString()
   };
-  if (isFirebaseOn && window._fbDb) {
+  if (isFirebaseConnected && window._fbDb) {
     try {
       const { collection, addDoc } = window._fbModules;
-      const docRef = await addDoc(collection(window._fbDb, 'houses'), house);
-      house.fbId = docRef.id;
-    } catch(e) { console.warn(e); }
+      await addDoc(collection(window._fbDb, 'houses'), house);
+    } catch(e) { console.warn(e); showNotify('⚠️ فشل الحفظ في Firebase، تم الحفظ محلياً'); houses.unshift(house); save(); renderHouses(); }
   } else {
     houses.unshift(house);
-    saveLocal();
+    save();
     renderHouses();
   }
   closeSheet('add-sheet');
@@ -1142,7 +1167,7 @@ async function addHouse() {
   showFlirt();
 }
 
-// تفاصيل البيت مع معرض الصور
+// Detail with gallery
 let currentGalleryImages = [], currentGalleryIndex = 0;
 function openDetail(id) {
   const h = houses.find(x => x.id === id);
@@ -1190,7 +1215,6 @@ function openDetail(id) {
   showFlirt();
 }
 
-// تأجير لطرف آخر
 function openRentDialog(houseId) {
   const house = houses.find(h => h.id === houseId);
   if (!house) return;
@@ -1223,14 +1247,13 @@ async function executeRent() {
     currentRentHouse.rented = true;
     currentRentHouse.rentedAt = new Date().toISOString();
   }
-  // تحديث في Firebase إذا كان متصلاً
-  if(isFirebaseOn && window._fbDb && currentRentHouse.fbId) {
+  if(isFirebaseConnected && window._fbDb && currentRentHouse.fbId) {
     try {
       const { doc, updateDoc } = window._fbModules;
       await updateDoc(doc(window._fbDb, 'houses', currentRentHouse.fbId), { rented: true, rentedAt: currentRentHouse.rentedAt });
     } catch(e) {}
   }
-  saveLocal();
+  save();
   recalcTotalComm();
   renderHouses();
   renderHistory();
@@ -1240,20 +1263,19 @@ async function executeRent() {
   showFlirt();
 }
 
-// حذف البيت مع كل سجلاته
-async function confirmDelete(id) {
-  openConfirm('🗑️', 'حذف البيت', 'هل تريدين حذف هذا البيت نهائياً؟ (سيتم حذف سجلات التأجير المرتبطة)', async () => {
+function confirmDelete(id) {
+  openConfirm('🗑️', 'حذف البيت', 'هل تريدين حذف هذا البيت نهائياً؟', async () => {
     const h = houses.find(x => x.id === id);
     if(h) {
       rentHistory = rentHistory.filter(r => r.houseId !== id);
-      if(isFirebaseOn && window._fbDb && h.fbId) {
+      if(isFirebaseConnected && window._fbDb && h.fbId) {
         try {
           const { doc, deleteDoc } = window._fbModules;
           await deleteDoc(doc(window._fbDb, 'houses', h.fbId));
         } catch(e) {}
       }
       houses = houses.filter(x => x.id !== id);
-      saveLocal();
+      save();
       recalcTotalComm();
       renderHouses();
       renderHistory();
@@ -1262,32 +1284,35 @@ async function confirmDelete(id) {
     closeConfirm();
   });
 }
+
 function confirmDeleteAll() {
   openConfirm('⚠️', 'حذف كل البيانات', 'سيتم حذف كل البيوت والسجلات والعمولات نهائياً!', async () => {
     houses = []; rentHistory = []; totalComm = 0;
-    if(isFirebaseOn && window._fbDb) {
+    if(isFirebaseConnected && window._fbDb) {
       try {
         const { collection, getDocs, deleteDoc } = window._fbModules;
         const snapshot = await getDocs(collection(window._fbDb, 'houses'));
         snapshot.forEach(d => deleteDoc(doc(window._fbDb, 'houses', d.id)));
       } catch(e) {}
     }
-    saveLocal();
+    save();
     recalcTotalComm();
     renderHouses();
     renderHistory();
     showNotify('🗑️ تم حذف كل البيانات');
   });
 }
+
 function confirmResetComm() {
   openConfirm('💰', 'حذف العمولات', 'سيتم إعادة إجمالي العمولات إلى الصفر', () => {
     rentHistory = rentHistory.map(r => ({ ...r, commission: 0 }));
-    saveLocal();
+    save();
     recalcTotalComm();
     renderHistory();
     showNotify('✅ تم حذف العمولات');
   });
 }
+
 function renderHistory() {
   const container = document.getElementById('history-list');
   const empty = document.getElementById('empty-history');
@@ -1312,7 +1337,6 @@ function renderHistory() {
 
 function formatDate(iso) { if (!iso) return '—'; const d = new Date(iso); return d.toLocaleDateString('ar-IQ', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }); }
 
-// تأكيد الحوار
 function openConfirm(icon, title, sub, cb) {
   document.getElementById('c-icon').textContent = icon;
   document.getElementById('c-title').textContent = title;
@@ -1320,10 +1344,7 @@ function openConfirm(icon, title, sub, cb) {
   confirmCb = cb;
   document.getElementById('confirm-overlay').classList.add('open');
 }
-function closeConfirm() {
-  document.getElementById('confirm-overlay').classList.remove('open');
-  confirmCb = null;
-}
+function closeConfirm() { document.getElementById('confirm-overlay').classList.remove('open'); confirmCb = null; }
 document.getElementById('confirm-yes').onclick = () => { if (confirmCb) confirmCb(); closeConfirm(); };
 document.getElementById('confirm-overlay').addEventListener('click', e => { if (e.target === document.getElementById('confirm-overlay')) closeConfirm(); });
 
@@ -1332,29 +1353,30 @@ window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferr
 function installApp() { if (deferredInstall) { deferredInstall.prompt(); deferredInstall.userChoice.then(() => deferredInstall = null); showFlirt(); } }
 if (/iphone|ipad|ipod/i.test(navigator.userAgent)) document.getElementById('ios-hint').style.display = 'block';
 
-// Service worker و manifest (كما هو)
+// Service Worker
 if ('serviceWorker' in navigator) {
   const sw = `const C='mandob-v2';self.addEventListener('install',e=>e.waitUntil(caches.open(C).then(c=>c.addAll(['/']))));self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
   const blob = new Blob([sw], {type:'application/javascript'});
   navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(()=>{});
 }
+
+// Manifest
 const manifest = { name:'مندوب',short_name:'مندوب', description:'تطبيق مندوب الإيجار الاحترافي', start_url:'./',display:'standalone', background_color:'#090614',theme_color:'#090614', orientation:'portrait', icons:[{src:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="%230f0a1e"/><text y=".9em" font-size="80">🏘️</text></svg>',sizes:'512x512',type:'image/svg+xml'}] };
 const mb = new Blob([JSON.stringify(manifest)],{type:'application/json'});
 const ml = document.createElement('link'); ml.rel='manifest'; ml.href=URL.createObjectURL(mb);
 document.head.appendChild(ml);
 
-// تهيئة التطبيق
-loadLocalData();
+// ======================= INIT =======================
 if (window._fbDb) {
-  isFirebaseOn = true;
-  startFirebaseListener();
-  document.getElementById('fb-status-bar').innerHTML = '✅ متصل بـ Firebase - مزامنة حية';
-  document.getElementById('fb-status-bar').className = 'fb-status connected';
+  updateFbStatusUI(false);
+  setTimeout(() => {
+    startFirebaseListener();
+  }, 500);
 } else {
-  isFirebaseOn = false;
-  document.getElementById('fb-status-bar').innerHTML = '⚡ غير متصل بـ Firebase (استخدام التخزين المحلي)';
-  document.getElementById('fb-status-bar').className = 'fb-status disconnected';
+  updateFbStatusUI(false);
 }
+renderHouses();
+recalcTotalComm();
 </script>
 </body>
 </html>
