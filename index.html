@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#090614">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="مندوب">
+<meta name="description" content="تطبيق مندوب الإيجار الاحترافي">
+<title>مندوب ✦</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, onSnapshot, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  window._fbModules = { initializeApp, getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, onSnapshot, query, orderBy };
+</script>
+
+<style>
+:root {
+  --bg: #090614;
+  --bg1: #0f0a1e;
+  --bg2: #150e2a;
+  --bg3: #1c1338;
+  --card: #120c24;
+  --rose: #f472b6;
+  --violet: #a78bfa;
+  --sky: #67e8f9;
+  --gold: #fbbf24;
+  --mint: #34d399;
+  --text: #f1eeff;
+  --muted: #7c6fa0;
+  --border: rgba(167,139,250,0.15);
+  --border2: rgba(244,114,182,0.18);
+  --r: 16px;
+  --r2: 12px;
+  --sh: 0 4px 24px rgba(0,0,0,0.6);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+
+html,body{height:100%;overflow:hidden;}
+
+body{
+  font-family:'Tajawal',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  display:flex;
+  flex-direction:column;
+}
+
+/* BG AMBIENCE */
+body::after{
+  content:'';
+  position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 70% 50% at 15% 0%,rgba(167,139,250,0.09) 0%,transparent 55%),
+    radial-gradient(ellipse 60% 45% at 85% 100%,rgba(244,114,182,0.08) 0%,transparent 55%),
+    radial-gradient(ellipse 40% 30% at 50% 50%,rgba(103,232,249,0.04) 0%,transparent 60%);
+  pointer-events:none;z-index:0;
+}
+
+/* ── TOPBAR ── */
+.topbar{
+  background:linear-gradient(135deg,rgba(21,14,42,0.98),rgba(15,10,30,0.98));
+  border-bottom:1px solid var(--border);
+  padding:12px 16px 10px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:relative;z-index:60;
+  backdrop-filter:blur(20px);
+  flex-shrink:0;
+}
+
+.app-brand{
+  display:flex;align-items:center;gap:10px;
+}
+
+.app-logo{
+  width:38px;height:38px;
+  border-radius:11px;
+  background:linear-gradient(135deg,var(--violet),var(--rose));
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;
+  box-shadow:0 4px 16px rgba(167,139,250,0.45);
+  flex-shrink:0;
+}
+
+.app-name{
+  font-size:20px;font-weight:900;
+  background:linear-gradient(135deg,var(--violet),var(--rose));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  letter-spacing:-0.3px;
+}
+
+.app-tagline{
+  font-size:10px;color:var(--muted);margin-top:1px;
+}
+
+.commission-pill{
+  background:linear-gradient(135deg,rgba(251,191,36,0.18),rgba(251,191,36,0.08));
+  border:1px solid rgba(251,191,36,0.3);
+  color:var(--gold);
+  padding:7px 14px;
+  border-radius:50px;
+  font-size:12px;font-weight:900;
+  display:flex;align-items:center;gap:5px;
+  cursor:pointer;
+  transition:all .2s;
+  box-shadow:0 2px 12px rgba(251,191,36,0.2);
+}
+.commission-pill:active{transform:scale(.96);}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{
+  background:linear-gradient(0deg,rgba(9,6,20,0.98),rgba(15,10,30,0.96));
+  border-top:1px solid var(--border);
+  display:flex;
+  position:relative;z-index:60;
+  flex-shrink:0;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+
+.nav-btn{
+  flex:1;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;
+  padding:10px 4px;
+  cursor:pointer;
+  transition:all .2s;
+  border:none;background:transparent;color:var(--muted);
+  font-family:'Tajawal';font-size:10px;
+  position:relative;
+}
+
+.nav-btn.active{color:var(--violet);}
+
+.nav-btn.active::before{
+  content:'';
+  position:absolute;top:0;left:20%;right:20%;height:2px;
+  background:linear-gradient(90deg,var(--violet),var(--rose));
+  border-radius:0 0 4px 4px;
+}
+
+.nav-icon{font-size:20px;transition:transform .2s;}
+.nav-btn.active .nav-icon{transform:scale(1.15);}
+.nav-btn:active .nav-icon{transform:scale(.9);}
+
+/* ── MAIN SCROLL ── */
+.main-scroll{
+  flex:1;overflow-y:auto;overflow-x:hidden;
+  position:relative;z-index:1;
+  -webkit-overflow-scrolling:touch;
+}
+
+/* ── PAGES ── */
+.page{display:none;padding:14px 14px 90px;}
+.page.active{display:block;animation:fadeUp .35s ease;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── STATS STRIP ── */
+.stats-row{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+  margin-bottom:14px;
+}
+
+.stat-chip{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:12px 8px;
+  text-align:center;
+  position:relative;overflow:hidden;
+}
+
+.stat-chip::after{
+  content:'';
+  position:absolute;bottom:0;left:0;right:0;height:2px;
+  border-radius:2px;
+}
+.stat-chip.c1::after{background:linear-gradient(90deg,var(--violet),var(--rose));}
+.stat-chip.c2::after{background:linear-gradient(90deg,var(--sky),var(--mint));}
+.stat-chip.c3::after{background:linear-gradient(90deg,var(--gold),#f97316);}
+
+.stat-num{font-size:22px;font-weight:900;color:var(--text);}
+.stat-lbl{font-size:10px;color:var(--muted);margin-top:2px;}
+
+/* ── SEARCH + FILTER ── */
+.search-wrap{
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border);
+  border-radius:var(--r2);
+  display:flex;align-items:center;
+  padding:0 12px;
+  margin-bottom:10px;
+  gap:8px;
+}
+.search-wrap input{
+  flex:1;background:transparent;border:none;outline:none;
+  color:var(--text);font-family:'Tajawal';font-size:14px;
+  padding:11px 0;
+}
+.search-wrap input::placeholder{color:var(--muted);}
+
+.filter-row{
+  display:flex;gap:6px;margin-bottom:14px;
+  overflow-x:auto;scrollbar-width:none;
+  padding-bottom:2px;
+}
+.filter-row::-webkit-scrollbar{display:none;}
+
+.ftab{
+  padding:6px 14px;border-radius:50px;
+  border:1px solid var(--border);background:transparent;
+  color:var(--muted);font-family:'Tajawal';font-size:12px;font-weight:600;
+  cursor:pointer;white-space:nowrap;transition:all .2s;
+}
+.ftab.active{
+  background:linear-gradient(135deg,rgba(167,139,250,.22),rgba(244,114,182,.18));
+  color:var(--text);border-color:rgba(167,139,250,.45);
+}
+
+/* ── PAGE HEADER ── */
+.page-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:12px;
+}
+.page-hdr-left{display:flex;align-items:center;gap:8px;}
+.page-hdr-title{font-size:16px;font-weight:900;color:var(--text);}
+.page-hdr-heart{font-size:10px;color:var(--rose);font-weight:600;opacity:.8;}
+.count-badge{
+  background:linear-gradient(135deg,var(--violet),var(--rose));
+  color:white;font-size:10px;font-weight:700;
+  padding:2px 8px;border-radius:20px;
+}
+
+/* ── COMPACT HOUSE CARD ── */
+.houses-list{display:flex;flex-direction:column;gap:8px;}
+
+.h-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  overflow:hidden;
+  display:flex;
+  align-items:stretch;
+  transition:transform .18s,box-shadow .18s;
+  position:relative;
+  animation:fadeUp .3s ease both;
+}
+
+.h-card:active{transform:scale(.99);}
+
+.h-card.rented{border-color:rgba(52,211,153,.22);}
+
+.h-card-img{
+  width:82px;flex-shrink:0;
+  object-fit:cover;
+  display:block;
+}
+
+.h-card-no-img{
+  width:82px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--bg2),var(--bg3));
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;color:var(--muted);
+}
+
+.h-card-body{
+  flex:1;padding:10px 10px 10px 6px;
+  display:flex;flex-direction:column;justify-content:space-between;
+  min-width:0;
+}
+
+.h-card-top{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:6px;margin-bottom:5px;
+}
+
+.h-card-addr{
+  font-size:13px;font-weight:700;color:var(--text);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  flex:1;
+}
+
+.h-status{
+  font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;
+  flex-shrink:0;white-space:nowrap;
+}
+.h-status.av{background:rgba(103,232,249,.12);color:var(--sky);border:1px solid rgba(103,232,249,.2);}
+.h-status.rn{background:rgba(52,211,153,.12);color:var(--mint);border:1px solid rgba(52,211,153,.2);}
+
+.h-card-mid{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  margin-bottom:6px;
+}
+
+.h-meta-chip{
+  font-size:11px;color:var(--muted);
+  display:flex;align-items:center;gap:3px;
+}
+
+.h-price{
+  font-size:14px;font-weight:900;
+  background:linear-gradient(135deg,var(--rose),#fb923c);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+
+.h-card-actions{
+  display:flex;gap:5px;
+}
+
+.ha-btn{
+  flex:1;padding:6px 4px;border-radius:8px;border:none;
+  font-family:'Tajawal';font-size:11px;font-weight:700;
+  cursor:pointer;transition:all .18s;
+  display:flex;align-items:center;justify-content:center;gap:3px;
+}
+
+.ha-view{background:linear-gradient(135deg,rgba(167,139,250,.25),rgba(244,114,182,.2));color:var(--text);border:1px solid rgba(167,139,250,.3);}
+.ha-rent{background:linear-gradient(135deg,rgba(52,211,153,.25),rgba(103,232,249,.15));color:var(--mint);border:1px solid rgba(52,211,153,.25);}
+.ha-del{background:rgba(244,114,182,.1);color:var(--rose);border:1px solid rgba(244,114,182,.2);flex:0;padding:6px 8px;}
+.ha-call{background:rgba(103,232,249,.1);color:var(--sky);border:1px solid rgba(103,232,249,.2);flex:0;padding:6px 8px;}
+.ha-btn:active{transform:scale(.94);}
+
+/* ── DETAIL SHEET ── */
+.sheet-overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.75);
+  backdrop-filter:blur(14px);
+  z-index:200;
+  display:flex;align-items:flex-end;
+  opacity:0;pointer-events:none;
+  transition:opacity .3s;
+}
+.sheet-overlay.open{opacity:1;pointer-events:all;}
+
+.sheet{
+  background:linear-gradient(180deg,var(--bg2),var(--bg));
+  border-radius:24px 24px 0 0;
+  border-top:1px solid var(--border);
+  width:100%;max-height:92vh;
+  overflow-y:auto;
+  transform:translateY(100%);
+  transition:transform .4s cubic-bezier(.34,1.56,.64,1);
+}
+.sheet-overlay.open .sheet{transform:translateY(0);}
+
+.sheet-handle{width:36px;height:3px;background:var(--muted);border-radius:2px;margin:14px auto 0;opacity:.4;}
+
+/* gallery styles */
+.gallery-container{position:relative;background:#000;min-height:200px;display:flex;align-items:center;justify-content:center;}
+.gallery-img{width:100%;height:240px;object-fit:contain;background:#0a0a14;}
+.gallery-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.6);border:none;color:white;font-size:24px;padding:4px 12px;border-radius:30px;cursor:pointer;z-index:10;}
+.gallery-prev{left:8px;}
+.gallery-next{right:8px;}
+.gallery-dots{display:flex;justify-content:center;gap:6px;margin:8px 0;}
+
+.sheet-no-img{width:100%;height:140px;background:linear-gradient(135deg,var(--bg2),var(--bg3));display:flex;align-items:center;justify-content:center;font-size:56px;color:var(--muted);}
+
+.sheet-content{padding:16px 18px 40px;}
+
+.sheet-title{
+  font-size:20px;font-weight:900;color:var(--text);margin-bottom:4px;
+}
+
+.sheet-price{
+  font-size:26px;font-weight:900;
+  background:linear-gradient(135deg,var(--rose),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  margin-bottom:12px;
+}
+
+.detail-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;
+}
+
+.detail-item{
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:10px 12px;
+}
+.detail-item.full{grid-column:span 2;}
+.detail-item-label{font-size:10px;color:var(--muted);margin-bottom:3px;display:flex;align-items:center;gap:4px;}
+.detail-item-val{font-size:13px;font-weight:700;color:var(--text);}
+
+.sheet-actions{display:flex;gap:8px;margin-top:4px;}
+
+.sa-btn{
+  flex:1;padding:13px;border-radius:var(--r2);border:none;
+  font-family:'Tajawal';font-size:14px;font-weight:800;
+  cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.sa-rent{background:linear-gradient(135deg,var(--mint),#059669);color:#05200e;}
+.sa-close{background:rgba(167,139,250,.15);color:var(--muted);border:1px solid var(--border);flex:0;padding:13px 18px;}
+.sa-btn:active{transform:scale(.97);}
+
+/* ── ADD SHEET ── */
+.form-grp{margin-bottom:12px;}
+.form-lbl{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:5px;display:flex;align-items:center;gap:5px;}
+.form-in{
+  width:100%;
+  background:rgba(255,255,255,.05);
+  border:1px solid var(--border);
+  border-radius:var(--r2);
+  padding:11px 13px;
+  color:var(--text);
+  font-family:'Tajawal';font-size:14px;
+  outline:none;
+  transition:border-color .2s,background .2s;
+}
+.form-in:focus{border-color:var(--violet);background:rgba(167,139,250,.07);}
+.form-ta{resize:none;height:72px;}
+
+.rating-btns{display:flex;gap:6px;}
+.rb{
+  flex:1;padding:9px 4px;border-radius:9px;border:1px solid var(--border);
+  background:transparent;color:var(--muted);
+  font-family:'Tajawal';font-size:11px;font-weight:600;
+  cursor:pointer;transition:all .2s;text-align:center;
+}
+.rb.active{background:linear-gradient(135deg,rgba(167,139,250,.22),rgba(244,114,182,.18));color:var(--text);border-color:var(--violet);}
+
+/* multi image preview */
+.img-multi-area{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;}
+.img-preview-item{position:relative;width:70px;height:70px;border-radius:10px;overflow:hidden;border:1px solid var(--border);}
+.img-preview-item img{width:100%;height:100%;object-fit:cover;}
+.remove-img-btn{position:absolute;top:2px;left:2px;background:rgba(0,0,0,.7);color:var(--rose);border-radius:50%;width:18px;height:18px;font-size:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+
+.img-drop{
+  border:2px dashed var(--border);border-radius:var(--r2);
+  padding:12px;text-align:center;cursor:pointer;
+  transition:all .2s;
+}
+.img-drop input{display:none;}
+
+.submit-btn{
+  width:100%;padding:15px;
+  border-radius:var(--r);border:none;
+  background:linear-gradient(135deg,var(--violet),var(--rose));
+  color:white;font-family:'Tajawal';font-size:15px;font-weight:900;
+  cursor:pointer;margin-top:6px;
+  box-shadow:0 6px 24px rgba(167,139,250,.4);
+  transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.submit-btn:active{transform:scale(.98);}
+
+/* ── HISTORY ── */
+.history-card{
+  background:var(--card);border:1px solid rgba(52,211,153,.2);
+  border-radius:var(--r);padding:12px 14px;
+  margin-bottom:8px;position:relative;overflow:hidden;
+  animation:fadeUp .3s ease both;
+}
+.history-card::before{
+  content:'';position:absolute;right:0;top:0;bottom:0;width:3px;
+  background:linear-gradient(180deg,var(--mint),var(--sky));
+}
+.hc-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;}
+.hc-img{width:50px;height:50px;border-radius:10px;object-fit:cover;flex-shrink:0;}
+.hc-no-img{width:50px;height:50px;border-radius:10px;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.hc-addr{font-size:14px;font-weight:700;color:var(--text);}
+.hc-date{font-size:11px;color:var(--muted);margin-top:2px;}
+.hc-meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.hc-chip{font-size:11px;padding:2px 9px;border-radius:20px;background:rgba(255,255,255,.05);color:var(--muted);}
+.hc-footer{display:flex;justify-content:space-between;align-items:center;}
+.hc-rent-price{font-size:12px;color:var(--muted);}
+.hc-commission{font-size:16px;font-weight:900;color:var(--gold);display:flex;align-items:center;gap:4px;}
+.hc-tenant{font-size:12px;color:var(--sky);margin-top:4px;}
+
+/* ── SETTINGS ── */
+.set-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r);padding:16px;margin-bottom:12px;
+}
+.set-card-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+
+.commission-big-wrap{text-align:center;padding:18px 10px;}
+.commission-big-num{
+  font-size:42px;font-weight:900;
+  background:linear-gradient(135deg,var(--gold),#f97316);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  line-height:1;
+}
+.commission-big-lbl{font-size:12px;color:var(--muted);margin-top:4px;}
+
+/* Firebase config form */
+.fb-form{display:none;}
+.fb-form.show{display:block;}
+.fb-status{
+  display:flex;align-items:center;gap:6px;
+  font-size:12px;padding:8px 12px;border-radius:9px;
+  margin-bottom:10px;
+}
+.fb-status.connected{background:rgba(52,211,153,.1);color:var(--mint);border:1px solid rgba(52,211,153,.2);}
+.fb-status.disconnected{background:rgba(244,114,182,.1);color:var(--rose);border:1px solid rgba(244,114,182,.2);}
+
+.btn-outline-danger{
+  width:100%;padding:12px;border-radius:var(--r2);
+  border:1px solid rgba(244,114,182,.3);
+  background:rgba(244,114,182,.08);
+  color:var(--rose);font-family:'Tajawal';font-size:13px;font-weight:700;
+  cursor:pointer;transition:all .2s;margin-top:8px;
+  display:flex;align-items:center;justify-content:center;gap:7px;
+}
+.btn-outline-danger:active{background:rgba(244,114,182,.16);}
+
+.btn-outline-primary{
+  width:100%;padding:12px;border-radius:var(--r2);
+  border:1px solid rgba(167,139,250,.3);
+  background:rgba(167,139,250,.08);
+  color:var(--violet);font-family:'Tajawal';font-size:13px;font-weight:700;
+  cursor:pointer;transition:all .2s;margin-top:8px;
+  display:flex;align-items:center;justify-content:center;gap:7px;
+}
+.btn-outline-primary:active{background:rgba(167,139,250,.16);}
+
+/* ── FAB ── */
+.fab{
+  position:fixed;bottom:72px;left:18px;
+  width:54px;height:54px;border-radius:50%;
+  background:linear-gradient(135deg,var(--violet),var(--rose));
+  color:white;font-size:26px;border:none;cursor:pointer;
+  box-shadow:0 6px 28px rgba(167,139,250,.55);
+  display:flex;align-items:center;justify-content:center;
+  transition:all .3s;z-index:100;
+}
+.fab:active{transform:scale(.92);}
+
+/* ── FLIRT TOAST ── */
+.flirt{
+  position:fixed;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%) scale(.7);
+  background:linear-gradient(135deg,rgba(21,14,42,.98),rgba(15,10,30,.98));
+  border:1px solid var(--border2);
+  color:var(--rose);
+  padding:14px 24px;
+  border-radius:20px;
+  font-size:16px;font-weight:700;
+  z-index:9999;
+  opacity:0;pointer-events:none;
+  transition:all .3s cubic-bezier(.34,1.56,.64,1);
+  box-shadow:0 8px 40px rgba(244,114,182,.35),0 0 0 1px rgba(244,114,182,.1);
+  text-align:center;line-height:1.5;
+  max-width:260px;
+  white-space:nowrap;
+}
+.flirt.show{opacity:1;transform:translate(-50%,-50%) scale(1);}
+
+/* ── NOTIFY TOAST ── */
+.notify{
+  position:fixed;bottom:calc(72px + env(safe-area-inset-bottom) + 12px);
+  left:50%;transform:translateX(-50%) translateY(12px);
+  background:var(--bg2);border:1px solid var(--border);
+  color:var(--text);
+  padding:10px 20px;border-radius:50px;
+  font-size:13px;font-weight:700;
+  z-index:9998;
+  opacity:0;transition:all .3s;
+  box-shadow:var(--sh);
+  white-space:nowrap;
+}
+.notify.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ── CONFIRM ── */
+.confirm-overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.82);
+  backdrop-filter:blur(14px);
+  z-index:500;
+  display:flex;align-items:center;justify-content:center;padding:20px;
+  opacity:0;pointer-events:none;transition:opacity .3s;
+}
+.confirm-overlay.open{opacity:1;pointer-events:all;}
+.confirm-box{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:20px;padding:26px 22px;width:100%;max-width:320px;
+  text-align:center;
+  transform:scale(.88);transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+}
+.confirm-overlay.open .confirm-box{transform:scale(1);}
+.confirm-icon{font-size:42px;margin-bottom:10px;}
+.confirm-title{font-size:17px;font-weight:900;margin-bottom:6px;}
+.confirm-sub{font-size:12px;color:var(--muted);margin-bottom:22px;line-height:1.5;}
+.confirm-actions{display:flex;gap:10px;}
+.confirm-yes{flex:1;padding:12px;border-radius:var(--r2);border:none;background:linear-gradient(135deg,var(--mint),#059669);color:#052e16;font-family:'Tajawal';font-size:14px;font-weight:800;cursor:pointer;}
+.confirm-no{flex:1;padding:12px;border-radius:var(--r2);border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'Tajawal';font-size:14px;font-weight:700;cursor:pointer;}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:50px 20px;color:var(--muted);}
+.empty-icon{font-size:52px;margin-bottom:10px;display:block;filter:grayscale(1);opacity:.5;}
+.empty p{font-size:14px;line-height:1.7;}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+
+/* ── LOADING DOT ── */
+.loading-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--violet);animation:ld 1s infinite;}
+@keyframes ld{0%,100%{opacity:.3;transform:scale(.8);}50%{opacity:1;transform:scale(1.2);}}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="app-brand">
+    <div class="app-logo">🏘️</div>
+    <div>
+      <div class="app-name">مندوب</div>
+      <div class="app-tagline">صُنع بـ❤️ لمندوبتي</div>
+    </div>
+  </div>
+  <div class="commission-pill" onclick="goSettings()">
+    💰 <span id="topbar-comm">0</span> د.ع
+  </div>
+</div>
+
+<!-- MAIN SCROLL -->
+<div class="main-scroll">
+
+  <!-- PAGE: HOMES -->
+  <div class="page active" id="page-homes">
+    <div style="height:14px;"></div>
+
+    <div class="stats-row">
+      <div class="stat-chip c1">
+        <div class="stat-num" id="st-total">0</div>
+        <div class="stat-lbl">إجمالي</div>
+      </div>
+      <div class="stat-chip c2">
+        <div class="stat-num" id="st-avail">0</div>
+        <div class="stat-lbl">متاح</div>
+      </div>
+      <div class="stat-chip c3">
+        <div class="stat-num" id="st-rented">0</div>
+        <div class="stat-lbl">مُؤجَّر</div>
+      </div>
+    </div>
+
+    <div class="search-wrap">
+      <span style="color:var(--muted)">🔍</span>
+      <input type="text" placeholder="ابحثي عن بيت..." oninput="doSearch(this.value)" id="search-in">
+    </div>
+
+    <div class="filter-row">
+      <button class="ftab active" onclick="setFilter('all',this)">الكل</button>
+      <button class="ftab" onclick="setFilter('available',this)">متاح</button>
+      <button class="ftab" onclick="setFilter('rented',this)">مُؤجَّر</button>
+    </div>
+
+    <div class="page-hdr">
+      <div class="page-hdr-left">
+        <div class="page-hdr-title">قائمة البيوت</div>
+        <div class="page-hdr-heart">صُنع بـ❤️ لمندوبتي</div>
+      </div>
+      <div class="count-badge" id="count-badge">0</div>
+    </div>
+
+    <div class="houses-list" id="houses-list"></div>
+    <div class="empty" id="empty-homes" style="display:none;">
+      <span class="empty-icon">🏠</span>
+      <p>ما عندچ بيوت مسجلة بعد<br>اضغطي + لإضافة أول بيت ✨</p>
+    </div>
+  </div>
+
+  <!-- PAGE: HISTORY -->
+  <div class="page" id="page-history">
+    <div style="height:14px;"></div>
+    <div class="page-hdr">
+      <div class="page-hdr-title">📋 سجل التأجيرات</div>
+      <div class="count-badge" id="hist-count">0</div>
+    </div>
+
+    <div id="history-list"></div>
+    <div class="empty" id="empty-history" style="display:none;">
+      <span class="empty-icon">📭</span>
+      <p>ما سجّلتِ أي تأجير بعد</p>
+    </div>
+  </div>
+
+  <!-- PAGE: SETTINGS -->
+  <div class="page" id="page-settings">
+    <div style="height:14px;"></div>
+    <div class="page-hdr"><div class="page-hdr-title">⚙️ الإعدادات</div></div>
+
+    <!-- Commission -->
+    <div class="set-card">
+      <div class="set-card-title">💰 إجمالي العمولات المستلمة</div>
+      <div class="commission-big-wrap">
+        <div class="commission-big-num" id="comm-big">0</div>
+        <div class="commission-big-lbl">دينار عراقي</div>
+      </div>
+      <button class="btn-outline-danger" onclick="confirmResetComm()">🗑️ حذف العمولات وإعادة الصفر</button>
+    </div>
+
+    <!-- Firebase -->
+    <div class="set-card">
+      <div class="set-card-title">🔥 ربط Firebase</div>
+      <div id="fb-status-bar" class="fb-status disconnected">⚡ غير متصل بـ Firebase</div>
+      <button class="btn-outline-primary" onclick="toggleFbForm()" id="fb-toggle-btn">⚙️ إعداد Firebase</button>
+      <div class="fb-form" id="fb-form-wrap" style="margin-top:12px;">
+        <div class="form-grp">
+          <div class="form-lbl">🔑 API Key</div>
+          <input class="form-in" id="fb-apikey" placeholder="AIzaSy..." style="font-size:12px;">
+        </div>
+        <div class="form-grp">
+          <div class="form-lbl">📦 Project ID</div>
+          <input class="form-in" id="fb-projectid" placeholder="my-project-id">
+        </div>
+        <div class="form-grp">
+          <div class="form-lbl">🌐 App ID</div>
+          <input class="form-in" id="fb-appid" placeholder="1:123456789:web:abc123" style="font-size:12px;">
+        </div>
+        <button class="submit-btn" onclick="connectFirebase()" style="margin-top:8px;background:linear-gradient(135deg,#f97316,#ef4444);">
+          🔥 اتصال بـ Firebase
+        </button>
+        <button class="btn-outline-danger" onclick="disconnectFirebase()" style="margin-top:8px;">
+          🔌 قطع الاتصال
+        </button>
+        <p style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.6;text-align:center;">
+          بعد الاتصال، البيانات تحفظ في Firestore<br>وتتزامن مع كل الأجهزة تلقائياً
+        </p>
+      </div>
+    </div>
+
+    <!-- PWA -->
+    <div class="set-card">
+      <div class="set-card-title">📲 تثبيت التطبيق</div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.6;">ثبّتي التطبيق على شاشتك الرئيسية للوصول بدون انترنت</p>
+      <button class="btn-outline-primary" id="install-btn" onclick="installApp()" style="display:none;">📲 تثبيت على الجهاز</button>
+      <p id="ios-hint" style="display:none;font-size:11px;color:var(--mint);text-align:center;">iPhone: اضغطي 🔗 ← أضف إلى الشاشة الرئيسية</p>
+    </div>
+
+    <!-- Danger -->
+    <div class="set-card">
+      <div class="set-card-title">⚠️ منطقة الخطر</div>
+      <button class="btn-outline-danger" onclick="confirmDeleteAll()">⚠️ حذف كل البيانات نهائياً</button>
+    </div>
+
+    <div style="text-align:center;padding:20px;color:var(--muted);font-size:11px;line-height:1.8;">
+      مندوب ✦ v2.0<br>
+      <span style="color:var(--rose);">صُنع بـ ❤️ لمندوبتي الجميلة</span>
+    </div>
+  </div>
+
+</div><!-- /main-scroll -->
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" id="nav-homes" onclick="showPage('homes')">
+    <span class="nav-icon">🏡</span>
+    <span>البيوت</span>
+  </button>
+  <button class="nav-btn" id="nav-history" onclick="showPage('history')">
+    <span class="nav-icon">📋</span>
+    <span>السجل</span>
+  </button>
+  <button class="nav-btn" id="nav-settings" onclick="showPage('settings')">
+    <span class="nav-icon">⚙️</span>
+    <span>الإعدادات</span>
+  </button>
+</nav>
+
+<!-- FAB -->
+<button class="fab" onclick="openAdd()">+</button>
+
+<!-- ADD HOUSE SHEET (with multiple images) -->
+<div class="sheet-overlay" id="add-sheet" onclick="handleSheetClick(event,'add-sheet')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div style="padding:4px 18px 28px;">
+      <div style="text-align:center;margin:10px 0 18px;">
+        <div style="font-size:18px;font-weight:900;background:linear-gradient(135deg,var(--violet),var(--rose));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">✦ إضافة بيت جديد ✦</div>
+      </div>
+
+      <div class="form-grp">
+        <div class="form-lbl">📍 عنوان البيت</div>
+        <input class="form-in" id="f-addr" placeholder="الحي والشارع ورقم البيت...">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="form-grp">
+          <div class="form-lbl">📐 المساحة (م²)</div>
+          <input class="form-in" id="f-area" type="number" placeholder="150">
+        </div>
+        <div class="form-grp">
+          <div class="form-lbl">📞 رقم الصاحب</div>
+          <input class="form-in" id="f-phone" type="tel" placeholder="07xxxxxxxxx">
+        </div>
+      </div>
+      <div class="form-grp">
+        <div class="form-lbl">🛋️ المحتويات</div>
+        <textarea class="form-in form-ta" id="f-contents" placeholder="غرف، صالة، مطبخ، حمامات..."></textarea>
+      </div>
+      <div class="form-grp">
+        <div class="form-lbl">✨ النظافة</div>
+        <div class="rating-btns">
+          <button class="rb" onclick="setRating(1,this)">⭐ عادي</button>
+          <button class="rb" onclick="setRating(2,this)">⭐⭐ جيد</button>
+          <button class="rb active" onclick="setRating(3,this)">⭐⭐⭐ نظيف</button>
+          <button class="rb" onclick="setRating(4,this)">✨ ممتاز</button>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="form-grp">
+          <div class="form-lbl">💵 الإيجار / شهر</div>
+          <input class="form-in" id="f-price" type="number" placeholder="300000">
+        </div>
+        <div class="form-grp">
+          <div class="form-lbl">💰 العمولة</div>
+          <input class="form-in" id="f-comm" type="number" placeholder="50000">
+        </div>
+      </div>
+      
+      <!-- multiple images upload -->
+      <div class="form-grp">
+        <div class="form-lbl">🖼️ صور البيت (اختياري، حتى ٣ صور)</div>
+        <div class="img-drop" onclick="document.getElementById('f-multi-imgs').click()">
+          <input type="file" id="f-multi-imgs" accept="image/*" multiple onchange="previewMultiImgs(this)">
+          <div id="drop-placeholder">
+            <div class="img-drop-icon">📷</div>
+            <div class="img-drop-txt">اضغطي لاختيار صور (يمكن اختيار عدة صور)</div>
+          </div>
+        </div>
+        <div id="multi-img-previews" class="img-multi-area"></div>
+      </div>
+
+      <button class="submit-btn" onclick="addHouse()">✦ حفظ البيت</button>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL SHEET (with gallery) -->
+<div class="sheet-overlay" id="detail-sheet" onclick="handleSheetClick(event,'detail-sheet')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div id="detail-gallery"></div>
+    <div class="sheet-content">
+      <div class="h-status av" id="detail-status" style="display:inline-block;margin-bottom:10px;">● متاح</div>
+      <div class="sheet-title" id="detail-title">—</div>
+      <div class="sheet-price" id="detail-price">—</div>
+      <div class="detail-grid" id="detail-grid"></div>
+      <div class="sheet-actions" id="detail-actions"></div>
+    </div>
+  </div>
+</div>
+
+<!-- RENT DIALOG (for tenant name) -->
+<div class="sheet-overlay" id="rent-dialog" onclick="handleSheetClick(event,'rent-dialog')">
+  <div class="sheet" style="max-height:70vh;">
+    <div class="sheet-handle"></div>
+    <div style="padding:20px;">
+      <div style="font-size:20px;font-weight:900;text-align:center;margin-bottom:16px;">🔑 تأجير البيت</div>
+      <div class="form-grp">
+        <div class="form-lbl">👤 اسم المستأجر</div>
+        <input class="form-in" id="rent-tenant-name" placeholder="مثال: عائلة الحيدري">
+      </div>
+      <div class="form-grp">
+        <div class="form-lbl">💰 العمولة (د.ع)</div>
+        <input class="form-in" id="rent-commission" type="number" placeholder="العمولة">
+      </div>
+      <div class="confirm-actions">
+        <button class="confirm-yes" onclick="executeRent()">تأكيد التأجير</button>
+        <button class="confirm-no" onclick="closeRentDialog()">إلغاء</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM OVERLAY -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <div class="confirm-icon" id="c-icon">⚠️</div>
+    <div class="confirm-title" id="c-title">تأكيد</div>
+    <div class="confirm-sub" id="c-sub">هل أنت متأكد؟</div>
+    <div class="confirm-actions">
+      <button class="confirm-yes" id="confirm-yes">نعم</button>
+      <button class="confirm-no" onclick="closeConfirm()">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- FLIRT & NOTIFY -->
+<div class="flirt" id="flirt"></div>
+<div class="notify" id="notify"></div>
+
+<script>
+// ======================= FLIRTY MESSAGES (unchanged) =======================
+const FLIRTS = [
+  ["🌹","والله ايدچ خفيفة يا قمر!"],["💫","برافو عليچ يا حلوة!"],["✨","ما يجي مثلچ بالشغل!"],["🌺","الله يبارك بيچ يا عسل!"],["💖","شطورة وما بيها كلام!"],["🌙","يا نور عيوني، أحسنتِ!"],["⭐","أذكى مندوبة بالعراق!"],["🌸","واحدة واحدة يا جميلة!"],["💎","كلشي صار بأيديچ الطيبة!"],["🦋","يمعود شلون شاطرة!"],["🌷","الله يخليچ دائماً متألقة!"],["🍯","أشطر وأحلى مندوبة!"],["💫","يا وردة تفتحت بالربيع!"],["🌟","أحسنتِ وزيادة يا قمر!"],["🎀","من يشتغل مثلچ؟ ما أحد!"]
+];
+let lastFlirt = -1, flirtTimer = null;
+function showFlirt() {
+  let idx; do { idx = Math.floor(Math.random() * FLIRTS.length); } while (idx === lastFlirt);
+  lastFlirt = idx;
+  const [em, msg] = FLIRTS[idx];
+  const el = document.getElementById('flirt');
+  el.innerHTML = `<div style="font-size:26px;margin-bottom:6px;">${em}</div>${msg}`;
+  el.classList.add('show');
+  clearTimeout(flirtTimer);
+  flirtTimer = setTimeout(() => el.classList.remove('show'), 2000);
+}
+document.addEventListener('touchstart', e => {
+  const t = e.target;
+  if (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA') return;
+  if (Math.random() < 0.38) showFlirt();
+}, {passive:true});
+
+function showNotify(msg) {
+  const el = document.getElementById('notify');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(notifyTimer);
+  notifyTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+let notifyTimer = null;
+
+// ======================= DATA =======================
+let houses = JSON.parse(localStorage.getItem('m_houses') || '[]');
+let rentHistory = JSON.parse(localStorage.getItem('m_history') || '[]');
+let totalComm = parseInt(localStorage.getItem('m_comm') || '0');
+let curFilter = 'all', curSearch = '', curRating = 3;
+let currentDetailId = null;
+let fbApp = null, fbDb = null, fbUnsubscribe = null;
+let isFirebaseOn = false;
+let deferredInstall = null;
+let confirmCb = null;
+let currentRentHouse = null;   // for rent dialog
+let selectedImageFiles = [];    // for multiple images
+
+// Migration: old single image to imageUrls array
+houses = houses.map(h => {
+  if (h.image && !h.imageUrls) { h.imageUrls = [h.image]; delete h.image; }
+  if (!h.imageUrls) h.imageUrls = [];
+  return h;
+});
+
+function save() {
+  if (!isFirebaseOn) {
+    localStorage.setItem('m_houses', JSON.stringify(houses));
+    localStorage.setItem('m_history', JSON.stringify(rentHistory));
+  }
+  localStorage.setItem('m_comm', totalComm);
+}
+
+function recalcTotalComm() {
+  totalComm = rentHistory.reduce((sum, r) => sum + (r.commission || 0), 0);
+  localStorage.setItem('m_comm', totalComm);
+  document.getElementById('topbar-comm').innerText = totalComm.toLocaleString();
+  if(document.getElementById('comm-big')) document.getElementById('comm-big').innerText = totalComm.toLocaleString();
+}
+
+// ======================= NAVIGATION =======================
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.getElementById('nav-' + name).classList.add('active');
+  if (name === 'history') renderHistory();
+  if (name === 'settings') recalcTotalComm();
+}
+function goSettings() { showPage('settings'); }
+
+// ======================= SHEETS =======================
+function openSheet(id) { document.getElementById(id).classList.add('open'); }
+function closeSheet(id) { document.getElementById(id).classList.remove('open'); }
+function handleSheetClick(e, id) { if (e.target === document.getElementById(id)) closeSheet(id); }
+function openAdd() { clearForm(); openSheet('add-sheet'); }
+
+// ======================= FORM (multi images) =======================
+function clearForm() {
+  ['f-addr','f-area','f-phone','f-contents','f-price','f-comm'].forEach(i => document.getElementById(i).value = '');
+  document.getElementById('f-multi-imgs').value = '';
+  document.getElementById('multi-img-previews').innerHTML = '';
+  selectedImageFiles = [];
+  curRating = 3;
+  document.querySelectorAll('.rb').forEach((b, i) => b.classList.toggle('active', i === 2));
+}
+function setRating(v, el) {
+  curRating = v;
+  document.querySelectorAll('.rb').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+function previewMultiImgs(input) {
+  const container = document.getElementById('multi-img-previews');
+  container.innerHTML = '';
+  selectedImageFiles = Array.from(input.files).slice(0, 3);
+  for(let i=0; i<selectedImageFiles.length; i++) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const div = document.createElement('div');
+      div.className = 'img-preview-item';
+      div.innerHTML = `<img src="${e.target.result}"><span class="remove-img-btn" onclick="removeImage(${i})">✕</span>`;
+      container.appendChild(div);
+    };
+    reader.readAsDataURL(selectedImageFiles[i]);
+  }
+}
+function removeImage(idx) {
+  selectedImageFiles.splice(idx, 1);
+  const input = document.getElementById('f-multi-imgs');
+  const dt = new DataTransfer();
+  for(let f of selectedImageFiles) dt.items.add(f);
+  input.files = dt.files;
+  previewMultiImgs(input);
+}
+const RATINGS = ['عادي','جيد','نظيف','ممتاز'];
+async function addHouse() {
+  const addr = document.getElementById('f-addr').value.trim();
+  const price = parseInt(document.getElementById('f-price').value) || 0;
+  if (!addr) { showNotify('⚠️ أدخلي عنوان البيت'); return; }
+  if (!price) { showNotify('⚠️ أدخلي سعر الإيجار'); return; }
+
+  const imageUrls = [];
+  for(let file of selectedImageFiles) {
+    const dataUrl = await new Promise(resolve => {
+      const rd = new FileReader();
+      rd.onload = () => resolve(rd.result);
+      rd.readAsDataURL(file);
+    });
+    imageUrls.push(dataUrl);
+  }
+
+  const house = {
+    id: Date.now().toString(),
+    address: addr,
+    area: document.getElementById('f-area').value.trim(),
+    phone: document.getElementById('f-phone').value.trim(),
+    contents: document.getElementById('f-contents').value.trim(),
+    cleanliness: RATINGS[curRating - 1],
+    price,
+    commission: parseInt(document.getElementById('f-comm').value) || 0,
+    imageUrls: imageUrls,
+    rented: false,
+    addedAt: new Date().toISOString()
+  };
+
+  if (isFirebaseOn && fbDb) {
+    try {
+      const { collection, addDoc } = window._fbModules;
+      const docRef = await addDoc(collection(fbDb, 'houses'), house);
+      house.fbId = docRef.id;
+    } catch(e) { console.warn('FB write failed', e); }
+  } else {
+    houses.unshift(house);
+    save();
+  }
+  closeSheet('add-sheet');
+  renderHouses();
+  showNotify('✅ تم إضافة البيت!');
+  showFlirt();
+}
+
+// ======================= RENDER HOUSES =======================
+function getFiltered() {
+  let list = [...houses];
+  if (curFilter === 'available') list = list.filter(h => !h.rented);
+  if (curFilter === 'rented') list = list.filter(h => h.rented);
+  if (curSearch) {
+    const q = curSearch.toLowerCase();
+    list = list.filter(h => h.address.toLowerCase().includes(q) || (h.contents || '').toLowerCase().includes(q));
+  }
+  return list;
+}
+function renderHouses() {
+  const list = getFiltered();
+  const container = document.getElementById('houses-list');
+  const empty = document.getElementById('empty-homes');
+  document.getElementById('st-total').textContent = houses.length;
+  document.getElementById('st-avail').textContent = houses.filter(h => !h.rented).length;
+  document.getElementById('st-rented').textContent = houses.filter(h => h.rented).length;
+  document.getElementById('count-badge').textContent = list.length;
+  if (!list.length) { container.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  container.innerHTML = list.map((h, i) => `
+    <div class="h-card${h.rented ? ' rented' : ''}" style="animation-delay:${i*0.04}s">
+      ${h.imageUrls && h.imageUrls[0] ? `<img class="h-card-img" src="${h.imageUrls[0]}" alt="" loading="lazy">` : `<div class="h-card-no-img">🏠</div>`}
+      <div class="h-card-body">
+        <div class="h-card-top">
+          <div class="h-card-addr">${h.address}</div>
+          <div class="h-status ${h.rented ? 'rn' : 'av'}">${h.rented ? '✓ مُؤجَّر' : '● متاح'}</div>
+        </div>
+        <div class="h-card-mid">
+          <div class="h-price">${h.price.toLocaleString()} د.ع</div>
+          ${h.area ? `<div class="h-meta-chip"><span>📐</span>${h.area} م²</div>` : ''}
+          <div class="h-meta-chip"><span>✨</span>${h.cleanliness}</div>
+        </div>
+        <div class="h-card-actions">
+          <button class="ha-btn ha-view" onclick="openDetail('${h.id}')">👁️ التفاصيل</button>
+          <button class="ha-btn ha-rent" onclick="openRentDialog('${h.id}')">🔑 تأجير</button>
+          ${h.phone ? `<button class="ha-btn ha-call" onclick="callOwner('${h.phone}')">📞</button>` : ''}
+          <button class="ha-btn ha-del" onclick="confirmDelete('${h.id}')">🗑️</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+function setFilter(f, el) { curFilter = f; document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active')); el.classList.add('active'); renderHouses(); }
+function doSearch(q) { curSearch = q; renderHouses(); }
+function callOwner(phone) { window.open('tel:' + phone); showFlirt(); }
+
+// ======================= DETAIL with gallery =======================
+let currentGalleryIdx = 0, currentHouseImages = [];
+function openDetail(id) {
+  const h = houses.find(x => x.id === id);
+  if (!h) return;
+  currentDetailId = id;
+  currentHouseImages = h.imageUrls || [];
+  const galleryDiv = document.getElementById('detail-gallery');
+  if (currentHouseImages.length) {
+    const showSlide = (idx) => {
+      galleryDiv.innerHTML = `
+        <div class="gallery-container" style="position:relative;">
+          <img class="gallery-img" src="${currentHouseImages[idx]}">
+          ${currentHouseImages.length > 1 ? `<button class="gallery-nav gallery-prev" onclick="event.stopPropagation(); slideDetailImage(-1)">❮</button><button class="gallery-nav gallery-next" onclick="event.stopPropagation(); slideDetailImage(1)">❯</button>` : ''}
+          <div class="gallery-dots">${currentHouseImages.map((_, ix) => `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${ix===idx?'var(--rose)':'#aaa'};margin:0 3px;"></span>`).join('')}</div>
+        </div>
+      `;
+      currentGalleryIdx = idx;
+    };
+    showSlide(0);
+    window.slideDetailImage = (dir) => {
+      let newIdx = currentGalleryIdx + dir;
+      if (newIdx >= 0 && newIdx < currentHouseImages.length) showSlide(newIdx);
+    };
+  } else {
+    galleryDiv.innerHTML = `<div class="sheet-no-img">🏠</div>`;
+  }
+  document.getElementById('detail-status').textContent = h.rented ? '✓ مُؤجَّر' : '● متاح';
+  document.getElementById('detail-status').className = `h-status ${h.rented ? 'rn' : 'av'}`;
+  document.getElementById('detail-title').textContent = h.address;
+  document.getElementById('detail-price').textContent = h.price.toLocaleString() + ' د.ع / شهر';
+  const grid = document.getElementById('detail-grid');
+  const items = [
+    h.area ? ['📐','المساحة', h.area + ' م²'] : null,
+    ['✨','النظافة', h.cleanliness],
+    h.phone ? ['📞','رقم الصاحب', h.phone] : null,
+    ['💰','العمولة', h.commission.toLocaleString() + ' د.ع'],
+    ['🕐','تاريخ الإضافة', formatDate(h.addedAt)],
+    h.contents ? ['🛋️','المحتويات', h.contents, true] : null,
+  ].filter(Boolean);
+  grid.innerHTML = items.map(([icon, label, val, full]) => `<div class="detail-item${full ? ' full' : ''}"><div class="detail-item-label">${icon} ${label}</div><div class="detail-item-val">${val}</div></div>`).join('');
+  const actions = document.getElementById('detail-actions');
+  actions.innerHTML = `<button class="sa-btn sa-rent" onclick="openRentDialog('${h.id}')">🔑 تأجير البيت</button>${h.phone ? `<button class="sa-btn" style="background:rgba(103,232,249,.15);color:var(--sky);border:1px solid rgba(103,232,249,.2);flex:0;padding:13px 18px;" onclick="callOwner('${h.phone}')">📞</button>` : ''}<button class="sa-btn sa-close" onclick="closeSheet('detail-sheet')">✕</button>`;
+  openSheet('detail-sheet');
+  showFlirt();
+}
+
+// ======================= RENT (multiple parties) =======================
+function openRentDialog(houseId) {
+  const house = houses.find(h => h.id === houseId);
+  if (!house) return;
+  currentRentHouse = house;
+  document.getElementById('rent-tenant-name').value = '';
+  document.getElementById('rent-commission').value = house.commission;
+  openSheet('rent-dialog');
+}
+function closeRentDialog() { closeSheet('rent-dialog'); currentRentHouse = null; }
+async function executeRent() {
+  if (!currentRentHouse) return;
+  const tenant = document.getElementById('rent-tenant-name').value.trim();
+  if (!tenant) { showNotify('⚠️ أدخلي اسم المستأجر'); return; }
+  const commissionVal = parseInt(document.getElementById('rent-commission').value) || currentRentHouse.commission;
+  // create history entry
+  const historyEntry = {
+    id: Date.now().toString(),
+    houseId: currentRentHouse.id,
+    address: currentRentHouse.address,
+    tenantName: tenant,
+    commission: commissionVal,
+    price: currentRentHouse.price,
+    area: currentRentHouse.area,
+    cleanliness: currentRentHouse.cleanliness,
+    phone: currentRentHouse.phone,
+    imageUrls: currentRentHouse.imageUrls || [],
+    rentedAt: new Date().toISOString()
+  };
+  rentHistory.unshift(historyEntry);
+  // mark house as rented if not already
+  if (!currentRentHouse.rented) {
+    currentRentHouse.rented = true;
+    currentRentHouse.rentedAt = new Date().toISOString();
+  }
+  // update total commission
+  recalcTotalComm();
+  save();
+  if (isFirebaseOn && fbDb && currentRentHouse.fbId) {
+    try {
+      const { doc, updateDoc } = window._fbModules;
+      await updateDoc(doc(fbDb, 'houses', currentRentHouse.fbId), { rented: true, rentedAt: currentRentHouse.rentedAt });
+    } catch(e) {}
+  }
+  closeRentDialog();
+  closeSheet('detail-sheet');
+  renderHouses();
+  renderHistory();
+  showNotify(`✅ تم تأجير لـ ${tenant} بعمولة ${commissionVal.toLocaleString()} د.ع`);
+  showFlirt();
+}
+
+// ======================= DELETE =======================
+function confirmDelete(id) {
+  openConfirm('🗑️', 'حذف البيت', 'هل تريدين حذف هذا البيت نهائياً؟', async () => {
+    const h = houses.find(x => x.id === id);
+    if (isFirebaseOn && fbDb && h?.fbId) {
+      try { const { doc, deleteDoc } = window._fbModules; await deleteDoc(doc(fbDb, 'houses', h.fbId)); } catch(e) {}
+    }
+    houses = houses.filter(x => x.id !== id);
+    save();
+    renderHouses();
+    showNotify('🗑️ تم الحذف');
+  });
+}
+function confirmDeleteAll() {
+  openConfirm('⚠️', 'حذف كل البيانات', 'سيتم حذف كل البيوت والسجلات والعمولات نهائياً!', () => {
+    houses = []; rentHistory = []; totalComm = 0;
+    save(); renderHouses(); recalcTotalComm(); showNotify('🗑️ تم حذف كل البيانات');
+  });
+}
+function confirmResetComm() {
+  openConfirm('💰', 'حذف العمولات', 'سيتم إعادة إجمالي العمولات إلى الصفر', () => {
+    rentHistory = rentHistory.map(r => ({ ...r, commission: 0 }));
+    save(); recalcTotalComm(); renderHistory(); showNotify('✅ تم حذف العمولات');
+  });
+}
+function renderHistory() {
+  const container = document.getElementById('history-list');
+  const empty = document.getElementById('empty-history');
+  document.getElementById('hist-count').textContent = rentHistory.length;
+  if (!rentHistory.length) { container.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  container.innerHTML = rentHistory.map((h, i) => `
+    <div class="history-card" style="animation-delay:${i*0.04}s">
+      <div class="hc-head">
+        ${h.imageUrls && h.imageUrls[0] ? `<img class="hc-img" src="${h.imageUrls[0]}" alt="">` : `<div class="hc-no-img">🏠</div>`}
+        <div>
+          <div class="hc-addr">${h.address}</div>
+          <div class="hc-date">🕐 ${formatDate(h.rentedAt)}</div>
+          <div class="hc-tenant">👤 المستأجر: ${h.tenantName || 'غير محدد'}</div>
+        </div>
+      </div>
+      <div class="hc-meta">${h.area ? `<div class="hc-chip">📐 ${h.area} م²</div>` : ''}<div class="hc-chip">✨ ${h.cleanliness}</div>${h.phone ? `<div class="hc-chip">📞 ${h.phone}</div>` : ''}</div>
+      <div class="hc-footer"><div class="hc-rent-price">إيجار: <strong style="color:var(--rose)">${h.price.toLocaleString()} د.ع</strong></div><div class="hc-commission">💰 ${h.commission.toLocaleString()} د.ع</div></div>
+    </div>
+  `).join('');
+}
+
+// ======================= CONFIRM DIALOG =======================
+function openConfirm(icon, title, sub, cb) {
+  document.getElementById('c-icon').textContent = icon;
+  document.getElementById('c-title').textContent = title;
+  document.getElementById('c-sub').textContent = sub;
+  confirmCb = cb;
+  document.getElementById('confirm-overlay').classList.add('open');
+}
+function closeConfirm() { document.getElementById('confirm-overlay').classList.remove('open'); confirmCb = null; }
+document.getElementById('confirm-yes').onclick = () => { if (confirmCb) confirmCb(); closeConfirm(); };
+document.getElementById('confirm-overlay').addEventListener('click', e => { if (e.target === document.getElementById('confirm-overlay')) closeConfirm(); });
+
+// ======================= FIREBASE (unchanged) =======================
+function toggleFbForm() { document.getElementById('fb-form-wrap').classList.toggle('show'); }
+async function connectFirebase() {
+  const apiKey = document.getElementById('fb-apikey').value.trim();
+  const projectId = document.getElementById('fb-projectid').value.trim();
+  const appId = document.getElementById('fb-appid').value.trim();
+  if (!apiKey || !projectId) { showNotify('⚠️ أدخلي API Key و Project ID'); return; }
+  try {
+    const { initializeApp, getFirestore, collection, onSnapshot, query, orderBy } = window._fbModules;
+    const config = { apiKey, authDomain: `${projectId}.firebaseapp.com`, projectId, storageBucket: `${projectId}.appspot.com`, appId: appId || undefined };
+    const existingApps = window._fbApps || [];
+    fbApp = initializeApp(config, 'mandob_' + Date.now());
+    window._fbApps = [...existingApps, fbApp];
+    fbDb = getFirestore(fbApp);
+    localStorage.setItem('m_fb_config', JSON.stringify({ apiKey, projectId, appId }));
+    isFirebaseOn = true;
+    document.getElementById('fb-status-bar').className = 'fb-status connected';
+    document.getElementById('fb-status-bar').textContent = '✅ متصل بـ Firebase - مزامنة تلقائية';
+    if (fbUnsubscribe) fbUnsubscribe();
+    const q = query(collection(fbDb, 'houses'), orderBy('addedAt', 'desc'));
+    fbUnsubscribe = onSnapshot(q, snap => {
+      houses = snap.docs.map(d => ({ ...d.data(), fbId: d.id, id: d.data().id || d.id, imageUrls: d.data().imageUrls || [] }));
+      renderHouses();
+    }, err => console.warn(err));
+    showNotify('🔥 تم الاتصال بـ Firebase!');
+    document.getElementById('fb-form-wrap').classList.remove('show');
+  } catch(e) { showNotify('❌ خطأ في الاتصال'); }
+}
+function disconnectFirebase() {
+  if (fbUnsubscribe) fbUnsubscribe();
+  isFirebaseOn = false; fbDb = null; fbApp = null;
+  localStorage.removeItem('m_fb_config');
+  document.getElementById('fb-status-bar').className = 'fb-status disconnected';
+  document.getElementById('fb-status-bar').textContent = '⚡ غير متصل بـ Firebase';
+  houses = JSON.parse(localStorage.getItem('m_houses') || '[]');
+  renderHouses();
+  showNotify('🔌 تم قطع الاتصال');
+}
+(async function autoReconnect() {
+  const saved = localStorage.getItem('m_fb_config');
+  if (saved) {
+    try { const cfg = JSON.parse(saved); document.getElementById('fb-apikey').value = cfg.apiKey || ''; document.getElementById('fb-projectid').value = cfg.projectId || ''; document.getElementById('fb-appid').value = cfg.appId || ''; setTimeout(connectFirebase, 800); } catch(e) {}
+  }
+})();
+
+// ======================= PWA (unchanged) =======================
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredInstall = e; document.getElementById('install-btn').style.display = 'flex'; });
+function installApp() { if (deferredInstall) { deferredInstall.prompt(); deferredInstall.userChoice.then(() => deferredInstall = null); showFlirt(); } }
+if (/iphone|ipad|ipod/i.test(navigator.userAgent)) document.getElementById('ios-hint').style.display = 'block';
+function formatDate(iso) { if (!iso) return '—'; const d = new Date(iso); return d.toLocaleDateString('ar-IQ', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }); }
+if ('serviceWorker' in navigator) { const sw = `const C='mandob-v2';self.addEventListener('install',e=>e.waitUntil(caches.open(C).then(c=>c.addAll(['/']))));self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`; const blob = new Blob([sw], {type:'application/javascript'}); navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(()=>{}); }
+const manifest = { name:'مندوب',short_name:'مندوب', description:'تطبيق مندوب الإيجار الاحترافي', start_url:'./',display:'standalone', background_color:'#090614',theme_color:'#090614', orientation:'portrait', icons:[{src:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="%230f0a1e"/><text y=".9em" font-size="80">🏘️</text></svg>',sizes:'512x512',type:'image/svg+xml'}] };
+const mb = new Blob([JSON.stringify(manifest)],{type:'application/json'}); const ml = document.createElement('link'); ml.rel='manifest'; ml.href=URL.createObjectURL(mb); document.head.appendChild(ml);
+
+// ======================= INIT =======================
+renderHouses();
+recalcTotalComm();
+</script>
+</body>
+</html>
